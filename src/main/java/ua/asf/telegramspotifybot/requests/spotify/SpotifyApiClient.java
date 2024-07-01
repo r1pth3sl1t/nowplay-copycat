@@ -1,6 +1,6 @@
 package ua.asf.telegramspotifybot.requests.spotify;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -13,16 +13,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
 import ua.asf.telegramspotifybot.core.entity.Token;
-import ua.asf.telegramspotifybot.requests.spotify.entity.Cover;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import static ua.asf.telegramspotifybot.requests.spotify.SpotifyHttpRequestUtils.*;
 
 @Component
 public class SpotifyApiClient {
@@ -58,13 +56,14 @@ public class SpotifyApiClient {
     }
 
     public Token refreshToken(Token token) {
+
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "refresh_token");
         map.add("refresh_token", token.getRefreshToken());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(this.getAuthHeader());
+        headers.setBasicAuth(getBasicAuthHeader(this.spotifyApiMetaData.getClientId(), this.spotifyApiMetaData.getClientSecret()));
 
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
 
@@ -83,17 +82,13 @@ public class SpotifyApiClient {
 
     public String getSpotifyUsername(Token token) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("Bearer " + token.getAccessToken());
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(null,
+                getDefaultHeaderWithAuthorization(token));
 
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(MessageFormat.format("{0}v1/me", spotifyApiMetaData.getApiUrl()),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
-
+        ResponseEntity<String> response = getTemplateForUrl(MessageFormat
+                .format("{0}v1/me", spotifyApiMetaData.getApiUrl()),
+                requestEntity);
         try {
            return new ObjectMapper().readTree(response.getBody()).get("display_name").asText();
         } catch (JsonProcessingException e) {
@@ -103,16 +98,14 @@ public class SpotifyApiClient {
     }
 
     public Track getCurrentlyPlayingSong(Token token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("Bearer " + token.getAccessToken());
 
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(null,
+                getDefaultHeaderWithAuthorization(token));
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(MessageFormat.format("{0}v1/me/player/currently-playing", spotifyApiMetaData.getApiUrl()),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
+        ResponseEntity<String> response = getTemplateForUrl(MessageFormat
+                .format("{0}v1/me/player/currently-playing", spotifyApiMetaData.getApiUrl()),
+                requestEntity);
         if(response.getBody() == null) return null;
         try {
             String trackString = new ObjectMapper().readTree(response.getBody()).get("item").toString();
@@ -129,50 +122,34 @@ public class SpotifyApiClient {
 
     public List<Track> getTopTracks(Token token) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("Bearer " + token.getAccessToken());
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(null,
+                getDefaultHeaderWithAuthorization(token));
 
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(MessageFormat.format("{0}v1/me/top/tracks?limit=10&time_range=short_term", spotifyApiMetaData.getApiUrl()),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
+        ResponseEntity<String> response = getTemplateForUrl(MessageFormat
+                .format("{0}v1/me/top/tracks?limit=10&time_range=short_term", spotifyApiMetaData.getApiUrl()),
+                requestEntity);
         try {
             String arr = new ObjectMapper().readTree(response.getBody()).get("items").toString();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            List<Track> tracks = objectMapper.readValue(arr, new TypeReference<List<Track>>() {});
-
-            return tracks;
+            return objectMapper.readValue(arr, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
     }
 
-    private String getAuthHeader() {
-        String auth = spotifyApiMetaData.getClientId() + ":" + spotifyApiMetaData.getClientSecret();
-        byte[] encodedAuth = Base64.encodeBase64(
-                auth.getBytes(StandardCharsets.US_ASCII) );
-        return new String(encodedAuth);
-
-    }
 
     public List<Track> getRecentlyPlayedTracks(Token token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("Bearer " + token.getAccessToken());
 
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(null,
+                getDefaultHeaderWithAuthorization(token));
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(
-                MessageFormat.format("{0}v1/me/player/recently-played?limit=5",
-                                        spotifyApiMetaData.getApiUrl()),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
+        ResponseEntity<String> response = getTemplateForUrl(MessageFormat
+                .format("{0}v1/me/player/recently-played?limit=5", spotifyApiMetaData.getApiUrl()),
+                requestEntity);
 
         try {
             String arr = new ObjectMapper().readTree(response.getBody()).get("items").toString();
@@ -181,6 +158,7 @@ public class SpotifyApiClient {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             List<TrackWrapper> tracks = objectMapper.readValue(arr, new TypeReference<>() {
             });
+
             List<Track> list = new LinkedList<>();
             tracks.forEach(t -> list.add(t.track));
             return list;
@@ -191,14 +169,7 @@ public class SpotifyApiClient {
 
 
     private static class TrackWrapper {
-        public Track getTrack() {
-            return track;
-        }
-
-        public void setTrack(Track track) {
-            this.track = track;
-        }
-
+        @JsonProperty("track")
         Track track;
     }
 

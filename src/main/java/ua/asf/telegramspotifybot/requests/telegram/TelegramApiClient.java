@@ -1,8 +1,5 @@
 package ua.asf.telegramspotifybot.requests.telegram;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -10,19 +7,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.telegram.telegrambots.meta.api.objects.Audio;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import ua.asf.telegramspotifybot.configuration.TelegramBotMetadata;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
-import ua.asf.telegramspotifybot.requests.telegram.entity.Photo;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.text.MessageFormat;
 
 @Component
@@ -99,19 +89,19 @@ public class TelegramApiClient {
                     String.class
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     private byte[] getRawBytesFromUrlFile(String url) {
-        URL myUrl = null;
+        URL myUrl;
         byte[] buf = new byte[4096];
         try {
             myUrl = new URL(url);
         } catch (MalformedURLException e) {
             return buf;
         }
-        InputStream myUrlStream = null;
+        InputStream myUrlStream;
         try {
             myUrlStream = myUrl.openStream();
         } catch (IOException e) {
