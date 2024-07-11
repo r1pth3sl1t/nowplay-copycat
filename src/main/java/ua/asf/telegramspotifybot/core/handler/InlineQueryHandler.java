@@ -28,12 +28,12 @@ public class InlineQueryHandler implements Handler {
     @Override
     public BotApiMethod<?> handle(Update update) {
 
-        if(!service.isAuthorized(update.getInlineQuery().getFrom().getId())) return AnswerInlineQuery.builder()
+        if(!service.isAuthorized(update.getInlineQuery().getFrom().getId()))
+            return AnswerInlineQuery.builder()
                 .inlineQueryId(update.getInlineQuery().getId())
                 .result(InlineQueryResultArticle.builder()
                         .id(UUID.randomUUID().toString())
-                        .title("Authorized account not found")
-                        .url("https://t.me/asf000000_bot")
+                        .title("It looks like you haven't been authorized yet")
                         .inputMessageContent(new InputTextMessageContent("."))
                         .build())
                 .cacheTime(1)
@@ -42,17 +42,18 @@ public class InlineQueryHandler implements Handler {
 
         service.refreshToken(update.getInlineQuery().getFrom().getId());
 
-        List<Track> playedTracks =  this.spotifyApiClient.getRecentlyPlayedTracks(
+        List<Track> playedTracks = this.spotifyApiClient.getRecentlyPlayedTracks(
                 this.service.getTokenByChatId(update.getInlineQuery().getFrom().getId())
         );
         List<InlineQueryResultAudio> result = new LinkedList<>();
         for (Track t : playedTracks) {
-            result.add(InlineQueryResultAudio.builder()
-                    .id(UUID.randomUUID().toString())
-                    .title(t.getName())
-                    .performer(t.getArtistsAsString())
-                    .audioUrl(t.getPreviewUrl())
-                    .build());
+            if(t.getPreviewUrl() != null)
+                result.add(InlineQueryResultAudio.builder()
+                        .id(UUID.randomUUID().toString())
+                        .title(t.getName())
+                        .performer(t.getArtistsAsString())
+                        .audioUrl(t.getPreviewUrl())
+                        .build());
         }
         return AnswerInlineQuery.builder()
                 .inlineQueryId(update.getInlineQuery().getId())
@@ -60,5 +61,6 @@ public class InlineQueryHandler implements Handler {
                 .cacheTime(1)
                 .isPersonal(true)
                 .build();
+
     }
 }
