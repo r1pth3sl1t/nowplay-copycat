@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ua.asf.telegramspotifybot.commands.Dispatcher;
 import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
 import ua.asf.telegramspotifybot.core.handler.keyboard.SpotifyInlineKeyboardButtonsFactory;
 import ua.asf.telegramspotifybot.core.service.SpotifyAuthorizationService;
@@ -28,6 +29,12 @@ public class MessageHandler implements Handler {
     @Autowired
     private TelegramApiClient telegramApiClient;
 
+    @Autowired
+    private Dispatcher dispatcher;
+
+    @Autowired
+    private Executor executor;
+
     @Override
     public BotApiMethod<?> handle(Update update) {
         if(!update.hasMessage()) return null;
@@ -43,7 +50,7 @@ public class MessageHandler implements Handler {
                             getAuthorizationInlineKeyboardMarkup(this.spotifyApiMetaData, service.getUUIDbyChatId(chatId)))
                     .build();
         }
-        else if(text.equals("/now")) {
+       /* else if(text.equals("/now")) {
             service.refreshToken(chatId);
             Track track = spotifyApiClient.getCurrentlyPlayingSong(service.getTokenByChatId(chatId));
             if(track != null && track.getPreviewUrl() != null) {
@@ -79,17 +86,19 @@ public class MessageHandler implements Handler {
                     .build();
         }
         else if(text.equals("/logout")) {
-            System.out.println("logout");
             boolean success = service.logout(chatId);
             String message = success ? "Log out successfully." : "Log in account not found.";
             return SendMessage.builder()
                     .chatId(chatId)
                     .text(message)
                     .build();
-        }
+        }*/
 
-        return this.sendMessageTemplate(chatId, "Could not resolve your query :(")
-                .build();
+        else {
+            service.refreshToken(chatId);
+            executor.setCommand(dispatcher.commandFromRequest(text, chatId));
+            return executor.executeCommand();
+        }
     }
 
 
