@@ -47,11 +47,11 @@ public class Dispatcher {
     }
 
     public Command commandFromRequest(String request, Long chatId) {
-        Command command = this.constructors.get(request).apply(chatId, responseCreator);
+        var commandConstructor = this.constructors.get(request);
 
-        if(command == null) command = new NullCommand(chatId, responseCreator);
+        if(commandConstructor == null) return new NullCommand(chatId, responseCreator);
 
-        return command;
+        return commandConstructor.apply(chatId, responseCreator);
     }
 
 }
