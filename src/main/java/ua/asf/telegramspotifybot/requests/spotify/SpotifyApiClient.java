@@ -11,7 +11,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
+import ua.asf.telegramspotifybot.configuration.metadata.SpotifyApiMetaData;
 import ua.asf.telegramspotifybot.core.entity.Token;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
 

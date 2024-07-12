@@ -1,7 +1,6 @@
-package ua.asf.telegramspotifybot.configuration;
+package ua.asf.telegramspotifybot.configuration.metadata;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 @Component

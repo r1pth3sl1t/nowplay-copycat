@@ -3,7 +3,6 @@ package ua.asf.telegramspotifybot.core.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "access_tokens")

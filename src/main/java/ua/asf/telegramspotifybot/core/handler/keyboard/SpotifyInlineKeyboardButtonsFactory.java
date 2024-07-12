@@ -2,7 +2,7 @@ package ua.asf.telegramspotifybot.core.handler.keyboard;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
+import ua.asf.telegramspotifybot.configuration.metadata.SpotifyApiMetaData;
 
 import java.text.MessageFormat;
 import java.util.List;

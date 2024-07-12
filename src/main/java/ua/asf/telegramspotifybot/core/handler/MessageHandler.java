@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.asf.telegramspotifybot.commands.Dispatcher;
-import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
+import ua.asf.telegramspotifybot.configuration.metadata.SpotifyApiMetaData;
 import ua.asf.telegramspotifybot.core.handler.keyboard.SpotifyInlineKeyboardButtonsFactory;
 import ua.asf.telegramspotifybot.core.service.SpotifyAuthorizationService;
 

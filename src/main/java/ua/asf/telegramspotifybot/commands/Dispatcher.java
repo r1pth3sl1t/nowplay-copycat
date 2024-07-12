@@ -22,7 +22,7 @@ public class Dispatcher {
     @Autowired
     private Reflections reflections;
 
-    private Map<String, BiFunction<Long, ResponseCreator, Command>> constructors = new HashMap<>();
+    private final Map<String, BiFunction<Long, ResponseCreator, Command>> constructors = new HashMap<>();
 
     @PostConstruct
     public void fillConstructorsTable() {

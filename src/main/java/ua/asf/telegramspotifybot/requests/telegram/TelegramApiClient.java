@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ua.asf.telegramspotifybot.configuration.TelegramBotMetadata;
+import ua.asf.telegramspotifybot.configuration.metadata.TelegramBotMetadata;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
 
 import java.io.*;
