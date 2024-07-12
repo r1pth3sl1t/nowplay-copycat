@@ -41,13 +41,24 @@ public class InlineQueryHandler implements Handler {
                 .build();
 
         service.refreshToken(update.getInlineQuery().getFrom().getId());
+        List<Track> tracksToReturn = new LinkedList<>();
+        boolean personal = true;
+        if(update.getInlineQuery().getQuery().isEmpty()) {
+            tracksToReturn = this.spotifyApiClient.getRecentlyPlayedTracks(
+                    this.service.getTokenByChatId(update.getInlineQuery().getFrom().getId())
+            );
+        }
+        else {
+            tracksToReturn = spotifyApiClient.findTrack(
+                    this.service.getTokenByChatId(update.getInlineQuery().getFrom().getId()),
+                    update.getInlineQuery().getQuery());
+            personal = false;
+        }
 
-        List<Track> playedTracks = this.spotifyApiClient.getRecentlyPlayedTracks(
-                this.service.getTokenByChatId(update.getInlineQuery().getFrom().getId())
-        );
         List<InlineQueryResultAudio> result = new LinkedList<>();
-        for (Track t : playedTracks) {
-            if(t.getPreviewUrl() != null)
+
+        for (Track t : tracksToReturn) {
+            if (t.getPreviewUrl() != null)
                 result.add(InlineQueryResultAudio.builder()
                         .id(UUID.randomUUID().toString())
                         .title(t.getName())
@@ -58,9 +69,8 @@ public class InlineQueryHandler implements Handler {
         return AnswerInlineQuery.builder()
                 .inlineQueryId(update.getInlineQuery().getId())
                 .results(result)
-                .cacheTime(1)
-                .isPersonal(true)
+                .cacheTime(5)
+                .isPersonal(personal)
                 .build();
-
     }
 }

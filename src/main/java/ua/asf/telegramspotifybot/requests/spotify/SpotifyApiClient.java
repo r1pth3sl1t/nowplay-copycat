@@ -167,6 +167,28 @@ public class SpotifyApiClient {
         }
     }
 
+    public List<Track> findTrack(Token token, String query) {
+
+
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(null,
+                getDefaultHeaderWithAuthorization(token));
+
+        ResponseEntity<String> response = getTemplateForUrl(MessageFormat
+                        .format("{0}v1/search?q=track:{1}&type=track", spotifyApiMetaData.getApiUrl(), query),
+                requestEntity);
+
+        try {
+            String arr = new ObjectMapper().readTree(response.getBody()).get("tracks").get("items").toString();
+            System.out.println(arr);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(arr, new TypeReference<>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private static class TrackWrapper {
         @JsonProperty("track")
