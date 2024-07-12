@@ -2,7 +2,9 @@ package ua.asf.telegramspotifybot.core.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import ua.asf.telegramspotifybot.core.service.SpotifyAuthorizationService;
 import ua.asf.telegramspotifybot.requests.spotify.SpotifyApiClient;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
@@ -48,17 +50,14 @@ public class ResponseCreator {
                 .build();
     }
 
-    public SendMessage topTracks(Long chatId) {
+    public BotApiMethod<?> topTracks(Long chatId) {
         StringBuilder list = new StringBuilder();
 
         int idx = 1;
         for(var i : spotifyApiClient.getTopTracks(spotifyAuthorizationService.getTokenByChatId(chatId))) {
-            list.append(idx++).append(". ").append(i).append('\n');
+            this.telegramApiClient.sendAudio(chatId, i);
         }
-        return SendMessage.builder()
-                .chatId(chatId)
-                .text(list.toString())
-                .build();
+        return null;
     }
 
     public SendMessage logout(Long chatId) {
