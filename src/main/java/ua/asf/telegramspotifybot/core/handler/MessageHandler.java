@@ -9,10 +9,6 @@ import ua.asf.telegramspotifybot.commands.Dispatcher;
 import ua.asf.telegramspotifybot.configuration.SpotifyApiMetaData;
 import ua.asf.telegramspotifybot.core.handler.keyboard.SpotifyInlineKeyboardButtonsFactory;
 import ua.asf.telegramspotifybot.core.service.SpotifyAuthorizationService;
-import ua.asf.telegramspotifybot.requests.spotify.SpotifyApiClient;
-import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
-import ua.asf.telegramspotifybot.requests.telegram.TelegramApiClient;
-
 
 @Component
 public class MessageHandler implements Handler {
@@ -21,13 +17,7 @@ public class MessageHandler implements Handler {
     private SpotifyAuthorizationService service;
 
     @Autowired
-    private SpotifyApiClient spotifyApiClient;
-
-    @Autowired
     private SpotifyApiMetaData spotifyApiMetaData;
-
-    @Autowired
-    private TelegramApiClient telegramApiClient;
 
     @Autowired
     private Dispatcher dispatcher;
@@ -44,8 +34,9 @@ public class MessageHandler implements Handler {
 
         if(!service.isAuthorized(chatId)) {
             service.addNewAllowedId(chatId);
-            return this.sendMessageTemplate(chatId,
-                    "It looks like you haven't authorized yet. Go by this link to authorize")
+            return SendMessage.builder()
+                    .chatId(chatId)
+                    .text("It looks like you haven't authorized yet. Go by this link to authorize")
                     .replyMarkup(SpotifyInlineKeyboardButtonsFactory.
                             getAuthorizationInlineKeyboardMarkup(this.spotifyApiMetaData, service.getUUIDbyChatId(chatId)))
                     .build();
@@ -57,11 +48,5 @@ public class MessageHandler implements Handler {
         }
     }
 
-
-    private SendMessage.SendMessageBuilder sendMessageTemplate(Long chatId, String message) {
-        return SendMessage.builder()
-                .chatId(chatId)
-                .text(message);
-    }
 
 }
