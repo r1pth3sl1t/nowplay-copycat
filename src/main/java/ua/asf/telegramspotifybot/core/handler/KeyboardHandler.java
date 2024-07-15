@@ -30,4 +30,9 @@ public class KeyboardHandler implements Handler {
 
         return null;
     }
+
+    @Override
+    public boolean doesFitForUpdate(Update update) {
+        return update.hasCallbackQuery();
+    }
 }

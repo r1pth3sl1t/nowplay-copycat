@@ -48,5 +48,10 @@ public class MessageHandler implements Handler {
         }
     }
 
+    @Override
+    public boolean doesFitForUpdate(Update update) {
+        return update.hasMessage();
+    }
+
 
 }

@@ -73,4 +73,9 @@ public class InlineQueryHandler implements Handler {
                 .isPersonal(personal)
                 .build();
     }
+
+    @Override
+    public boolean doesFitForUpdate(Update update) {
+        return update.hasInlineQuery();
+    }
 }

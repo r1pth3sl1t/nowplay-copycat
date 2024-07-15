@@ -6,4 +6,5 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface Handler {
     BotApiMethod<?> handle(Update update);
+    boolean doesFitForUpdate(Update update);
 }

@@ -3,11 +3,19 @@ package ua.asf.telegramspotifybot.core.handler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaAudio;
 import ua.asf.telegramspotifybot.core.service.SpotifyAuthorizationService;
 import ua.asf.telegramspotifybot.requests.spotify.SpotifyApiClient;
 import ua.asf.telegramspotifybot.requests.spotify.entity.Track;
 import ua.asf.telegramspotifybot.requests.telegram.TelegramApiClient;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class ResponseCreator {
@@ -50,12 +58,12 @@ public class ResponseCreator {
     }
 
     public BotApiMethod<?> topTracks(Long chatId) {
-        StringBuilder list = new StringBuilder();
+        List<Track> tracks = spotifyApiClient.getTopTracks(spotifyAuthorizationService.getTokenByChatId(chatId));
 
-        int idx = 1;
-        for(var i : spotifyApiClient.getTopTracks(spotifyAuthorizationService.getTokenByChatId(chatId))) {
-            this.telegramApiClient.sendAudio(chatId, i);
+        for (Track track : tracks) {
+           telegramApiClient.sendAudio(chatId, track);
         }
+
         return null;
     }
 
