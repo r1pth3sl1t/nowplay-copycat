@@ -136,7 +136,7 @@ public class SpotifyApiClient {
 
         ResponseEntity<String> response = restTemplate.exchange(
                 MessageFormat
-                        .format("{0}v1/me/top/tracks?limit=10&time_range=short_term", spotifyApiMetaData.getApiUrl()),
+                        .format("{0}v1/me/top/tracks?limit=5&time_range=short_term", spotifyApiMetaData.getApiUrl()),
                 HttpMethod.GET,
                 requestEntity,
                 String.class);
@@ -198,7 +198,6 @@ public class SpotifyApiClient {
 
         try {
             String arr = new ObjectMapper().readTree(response.getBody()).get("tracks").get("items").toString();
-            System.out.println(arr);
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(arr, new TypeReference<>() {});
