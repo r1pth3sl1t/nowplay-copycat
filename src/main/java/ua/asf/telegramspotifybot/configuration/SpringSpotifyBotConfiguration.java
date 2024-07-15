@@ -1,8 +1,11 @@
 package ua.asf.telegramspotifybot.configuration;
 
 import org.reflections.Reflections;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import ua.asf.telegramspotifybot.configuration.metadata.TelegramBotMetadata;
 import ua.asf.telegramspotifybot.core.SpotifyBot;
@@ -25,4 +28,10 @@ public class SpringSpotifyBotConfiguration {
         return new Reflections("ua.asf.telegramspotifybot");
     }
 
+
+    @Bean
+    @Scope("prototype")
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
 }

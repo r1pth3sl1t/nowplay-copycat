@@ -24,11 +24,4 @@ public class SpotifyHttpRequestUtils {
                 auth.getBytes(StandardCharsets.US_ASCII) );
         return new String(encodedAuth);
     }
-
-    public static ResponseEntity<String> getTemplateForUrl(String url, HttpEntity<?> requestEntity) {
-        return new RestTemplate().exchange(url,
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
-    }
 }

@@ -18,12 +18,12 @@ import java.text.MessageFormat;
 @Component
 public class TelegramApiClient {
 
-    private final TelegramBotMetadata telegramBotMetadata;
+    @Autowired
+    private TelegramBotMetadata telegramBotMetadata;
 
     @Autowired
-    public TelegramApiClient(TelegramBotMetadata telegramBotMetadata) {
-        this.telegramBotMetadata = telegramBotMetadata;
-    }
+    private RestTemplate restTemplate;
+
 
     @PostConstruct
     public void registerWebhook() {
@@ -33,7 +33,6 @@ public class TelegramApiClient {
 
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.exchange(MessageFormat.format("{0}bot{1}/setWebhook?url={2}", telegramBotMetadata.getApiUrl(), telegramBotMetadata.getBotToken(), telegramBotMetadata.getBotPath()),
                 HttpMethod.GET,
                 requestEntity,
@@ -51,7 +50,6 @@ public class TelegramApiClient {
 
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.exchange(
                 MessageFormat.format("{0}bot{1}/sendMessage", telegramBotMetadata.getApiUrl(), telegramBotMetadata.getBotToken()),
                 HttpMethod.POST,
@@ -65,14 +63,14 @@ public class TelegramApiClient {
 
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("audio", this.getHttpEntityForBinaryFile(track.getId() + ".mp3",
-                this.getRawBytesFromUrlFile(track.getPreviewUrl()),
+                this.getRawBytesFromUrl(track.getPreviewUrl()),
                 "audio"));
 
         map.add("chat_id", chatId);
         map.add("performer", track.getArtistsAsString());
         map.add("title", track.getName());
         map.add("thumbnail", this.getHttpEntityForBinaryFile("thumbnail.jpeg",
-                this.getRawBytesFromUrlFile(track.getAlbum().getImages().get(2).getUrl()),
+                this.getRawBytesFromUrl(track.getAlbum().getImages().get(2).getUrl()),
                 "thumbnail"));
 
         HttpHeaders headers = new HttpHeaders();
@@ -81,7 +79,6 @@ public class TelegramApiClient {
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
             restTemplate.exchange(
                     MessageFormat.format("{0}bot{1}/sendAudio", telegramBotMetadata.getApiUrl(), telegramBotMetadata.getBotToken()),
                     HttpMethod.POST,
@@ -93,7 +90,7 @@ public class TelegramApiClient {
         }
     }
 
-    private byte[] getRawBytesFromUrlFile(String url) {
+    private byte[] getRawBytesFromUrl(String url) {
         URL myUrl;
         byte[] buf = new byte[4096];
         try {
